@@ -28,6 +28,7 @@ function simulateOneEvent () {
 
 function simulateMultipleEvents (n) {
   for (var i = 0; i < n; i += 1) { simulateOneEvent(); }
+  drawAlgo();
 }
 
 
@@ -35,7 +36,7 @@ function simulateMultipleEvents (n) {
 
 
 // Drawing functions, very dirty ...
-function drawTable (table) {
+function drawTable (table, id) {
   var tableHtml = '<table>';
 
   tableHtml += "<tr>";
@@ -63,7 +64,7 @@ function drawTable (table) {
   }
   tableHtml += "<table>";
 
-  document.getElementById("container").innerHTML = tableHtml;
+  document.getElementById(id).innerHTML = tableHtml;
 }
 
 function getFraudPercentageTable () {
@@ -79,6 +80,21 @@ function getFraudPercentageTable () {
   return res;
 }
 
+function drawWorld (world) {
+  drawTable(world, "world-table");
+}
 
-// TEST
+function drawAlgo () {
+  drawTable(getFraudPercentageTable(), "algo-table");
+}
+
+function changeWorld (world) {
+  currentWorld = world;
+  drawWorld(world);
+}
+
+
+// INIT
 currentWorld = world1;
+drawWorld(world1);
+drawAlgo();
