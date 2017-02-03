@@ -27,24 +27,30 @@ function simulateOneEvent () {
   if (isFraud) { algoView[i][j].f += 1; } else { algoView[i][j].nf += 1; }
 }
 
+// Simulate n events with a nice visual transition
 // When calling this function, only use the first parameter
-function simulateMultipleEvents (n, lastTimestamp, startTimestamp) {
+function simulateMultipleEvents (n, nDone, lastTimestamp, startTimestamp) {
   if (lastTimestamp === undefined) {
     lastTimestamp = Date.now();
     startTimestamp = Date.now();
+    nDone = 0;
   }
 
   var newTimestamp = Date.now()
     , steps = Math.floor(n * (newTimestamp - lastTimestamp) / stepTime);
 
+  steps = Math.min(steps, n - nDone);
+  nDone = steps + nDone;
+
   for (var i = 0; i < steps; i += 1) { simulateOneEvent(); }
   drawAlgo();
 
   // Means we can have a bit more than n steps actually
-  if (newTimestamp - startTimestamp < stepTime) {
+  // The +1000 is a buffer to absorb time taken during calls of the function
+  if (nDone === n || newTimestamp - startTimestamp < stepTime + 1000) {
     setTimeout(function () {
-      simulateMultipleEvents(n, newTimestamp, startTimestamp);
-    }, 10);   // Max 10 fps
+      simulateMultipleEvents(n, nDone, newTimestamp, startTimestamp);
+    }, 20);   // Max 10 fps
   }
 }
 
@@ -110,8 +116,21 @@ function changeWorld (world) {
   drawWorld(world);
 }
 
+document.getElementById("select-world").addEventListener("change", function () {
+  var world = document.getElementById("select-world").value;
+  if (world === "world1") { changeWorld(world1); }
+  if (world === "world2") { changeWorld(world2); }
+  if (world === "world3") { changeWorld(world3); }
+});
+
+document.getElementById("go").addEventListener("click", function () {
+  var events = document.getElementById("events").value;
+  events = parseInt(events, 10);
+  if (isNaN(events)) { return; }
+  simulateMultipleEvents(events);
+});
+
 
 // INIT
-currentWorld = world1;
-drawWorld(world1);
+changeWorld(world1);
 drawAlgo();
