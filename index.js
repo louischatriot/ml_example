@@ -4,6 +4,7 @@ var xdims = ['Visa', 'MasterCard']
   , world2 = [[0.7, 0, 0.8], [0, 0, 0]]
   , world3 = [[0, 0, 0], [0.9, 0.8, 0.8]]
   , algoView = []
+  , stepTime = 2000   // In ms
   , currentWorld
   ;
 
@@ -26,9 +27,25 @@ function simulateOneEvent () {
   if (isFraud) { algoView[i][j].f += 1; } else { algoView[i][j].nf += 1; }
 }
 
-function simulateMultipleEvents (n) {
-  for (var i = 0; i < n; i += 1) { simulateOneEvent(); }
+// When calling this function, only use the first parameter
+function simulateMultipleEvents (n, lastTimestamp, startTimestamp) {
+  if (lastTimestamp === undefined) {
+    lastTimestamp = Date.now();
+    startTimestamp = Date.now();
+  }
+
+  var newTimestamp = Date.now()
+    , steps = Math.floor(n * (newTimestamp - lastTimestamp) / stepTime);
+
+  for (var i = 0; i < steps; i += 1) { simulateOneEvent(); }
   drawAlgo();
+
+  // Means we can have a bit more than n steps actually
+  if (newTimestamp - startTimestamp < stepTime) {
+    setTimeout(function () {
+      simulateMultipleEvents(n, newTimestamp, startTimestamp);
+    }, 10);   // Max 10 fps
+  }
 }
 
 
